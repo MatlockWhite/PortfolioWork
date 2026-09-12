@@ -1,0 +1,136 @@
+/************************************************************
+ *															*
+ *				Created By: Matlock White					*
+ *															*
+ ************************************************************/
+
+
+ --- Brief Overview of Project Purpose and Self ---
+	Hello my name is Matlock and I am a Software Developer with a focus on .NET Core and C#. 
+	I have been working in the field for several years now and have a strong understanding of web development, microservices, and cloud computing.
+
+	Throughout my career I have worked on a variety of projects, from small web applications to large-scale enterprise systems. 
+	I have experience with a wide range of technologies and frameworks, including but not limited to, .NET Core, C++, C#, Java, Angular, React, and SQL Servers.
+
+	Most of my experience and work has been in the private sector, and as such, I have not had the opportunity to showcase my skills in a public manner that can quickly
+	be looked up by a 3rd party who is not DoD.
+
+	I am working on a few privately owned projects that I hope will one day be available for public consumption, but they are not at that point just yet.
+
+	For that reason I have decided to create this project as a way to showcase some of my skills and abilities in a public manner, and better fill out my own portfolio.
+
+	As such this work is meant merely to better fill out my portfolio work and showcase some of the skills I have learned over the past few years, focusing on .NET Core, C#, and Microservices.
+	I will also be documenting each part of this project as I progress and maintaining the versioning and updates using Github.
+
+	This is made with the express intent that nothing here is proprietary and should not be considered as production level deployable, but instead as a testbed for learning and showcasing cpability and skills.
+
+
+ --- Project Goal ---
+	This project is meant to showcase how one might go about setting up a series of Microservices 
+	that work independently or in conjunction to simulate functionality of real world: Microservices, API Gateway, Load Balancing, Authentication, and Logging.
+
+	For Added Measure I will be creating services, the most generic/common example(s) I can think of, which will entail the following:
+		- User's: Simulating generic user information (Username, POC information, etc.)
+		- Warehouse: Simulating goods that are sold, moved, and stored within. (item_id, name, cost, location, quantity_in_stock, quantity_ordered, quantity_on_backorder, etc.)
+		- Logging (event, occurred_on, service, etc)
+
+	This will also include Database logic including: Creation, Stored Proceedures, and Overall Design/Functionality individually for each Microservice.
+
+	To ensure that each of the services and features are working as intended, I will be implementing a series of Unit Tests for each service individually and an overarching
+	Test for all microservices when working in conjunction with one another.
+
+	I will also be implementing an API Gateway to route requests to the appropriate Microservice. This will include:
+		- Load Balancing between multiple instances of the same Microservice.
+		- Authentication and Authorization for the API Gateway and Microservices.
+		- Logging and Monitoring for the API Gateway and subsequent Microservices.
+
+	Lastly, I will be implementing several DevOps features to ensure that the project is easily deployable and maintainable. This will include:
+		- Dockerization of each Microservice
+		- Dockerization of the API Gateway
+		- Dockerization of the Database(s)
+		- Docker Compose to bring up all services together for testing and deployment.
+		- CI/CD Pipeline for automated testing and deployment.
+
+	- Completion Benchmarks -
+	This project would be considered complete when the following goals have been met:
+		- A series of Microservices that can be deployed independently or together.
+			- User Service
+				- User information and manipulation through API Functionality to maintain and update the User DB. 
+			- Warehouse Service
+				- Data manipulation through API Functionality for the Warehouse DB to simulate sales and inventory management.
+			- Logging Service
+				- Data manipulation through API Functionality for the transactional activities that occur on all other services.
+		- An API Gateway that can route requests to the appropriate Microservice.
+		- Load Balancing between multiple instances of the same Microservice is possible/testable.
+		- Authentication and Authorization for the API Gateway and Microservices is possible/testable.
+		- Logging and Monitoring for the API Gateway and subsequent Microservices is possible/testable.
+
+
+ --- Overview ---
+	To best complete this goal I will be implementing the projects in a series. Each will be checked into Github at the completion of each phase. 
+	Subsequent versioning may also be made and checked in whenever substantial improvement has occurred for any one phase.
+
+
+	At each Step I will update this document to reflect the progress and any changes to the project goal or implementation.
+		- Phase 1
+			- Goal: 
+				- Implement the basic structure/outline of the project, check in to Github as a baseline.
+			- Notes:
+				# At this point I am unsure as to whether or not I intend to setup a CI/CD pipeline for this project as that is overkill for what will not have any
+				  Continued Integration or Deployment.
+				# Pros -
+					- On the one hand it would do well to showcase my knowledge and understanding 
+					- It may even help me better point out if there is an area in which I am lacking.
+				# Cons - 
+					- Erronious for this project. 
+					- This project is already going to take time away from my own project(s) development and the cost of that time wouldnt be as beneficial.
+					- The time could be better spent on my other projects, which will require a CI/CD pipeline, and have inclusion of more 
+					  elaborate functionality of what is contained within this project already.
+		- Phase 2
+			- Goal: 
+				- Create a standardized project structure for all Microservices.
+				- Implement the User Service and Database.
+			- Notes:
+		- Phase 3
+			- Goal: 
+				- Implement the Warehouse Service and Database.
+			- Notes:
+		- Phase 4
+			- Goal: 
+				- Implement the Logging Service and Database.
+			- Notes:
+		- Phase 5
+			- Goal: 
+				- Implement the API Gateway utilizing YARP.
+					- Create Microservice Routing and Rate Limiting.
+					- Implement Authentication, Request Validation, and Authorization.
+					- Implement Error Handling and Logging methods.
+			- Notes:
+		- Phase 6
+			- Goal: 
+				- Implement Unit Tests for each Microservice and Health Checks for the API Gateway.
+				- Implement Integration Tests for all Microservices working together through the API Gateway.
+				- Implement Load Balancing between multiple instances of the same Microservice.
+			- Notes:
+		- Phase 7
+			- Goal: 
+				- Implement Dockerization of all Microservices, API Gateway, and Databases.
+				- Implement Docker Compose to bring up all services together for testing and deployment.
+			- Notes:
+		- Phase 8 (Possibly Final Phase)
+			- Goal:
+				- Project Documentation 
+				- Final Security Review
+				- Code Cleanup/Polish
+				- Final Review
+		- Phase 9 (Possibly Final Phase/ May or May not include a CI/CD Pipeline for this project.)
+			- Goal: 
+				- Implement CI/CD Pipeline for automated testing and deployment.
+			- Notes:
+
+ --- 3rd Party Tools ---
+	- YARP
+	- Docker
+	- GitHub
+	- MySQL
+	- Visual Studio 2022
