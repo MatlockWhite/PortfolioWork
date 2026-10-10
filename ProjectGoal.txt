@@ -81,7 +81,6 @@
 				# Pros -
 					- On the one hand it would do well to showcase my knowledge and understanding 
 					- It may even help me better point out if there is an area in which I am lacking.
-					- I could even use a service which I have not used before, thereby showcasing my ability to learn and implement new technologies.
 				# Cons - 
 					- Erronious for this project. 
 					- This project is already going to take time away from my own project(s) development and the cost of that time wouldnt be as beneficial.
@@ -92,33 +91,6 @@
 				- Create a standardized project structure for all Microservices.
 				- Implement the User Service and Database.
 			- Notes:
-				# Shared Project Structure
-					- Create a shared project structure for all Microservices to ensure consistency and maintainability.
-					- The Goal of the Shared Project is that it will define shared logic that can be referenced and is used across the each of the services but will not itself own any business logic.
-						- Examples: (ApiResponses, Errors, ValidationErrors, etc.)
-
-					- The Shared Project Structure will include the following:
-						- Constants
-							- ServiceNames
-							- ClaimNames
-						- Contracts:	(We are using the term "Contract" to denote the agreed upon structure that 2 pieces of software promise to follow when communicating. It also is unique compared to similar terms and behaviours that we will be using at the individual service layer.)
-							- APIResponse
-							- APIError
-							- ValidationError
-							- ErrorCode
-							- PaginationRequest
-							- PagedResponse
-						- Headers
-							- HeaderNames
-						- CorrelationContext
-							- CorrelationContext
-						- Result
-							- Result
-							- Results 
-
-				# Project Solution Mappings did not map correctly to the project structure. The old mappings have been removed and the new mappings have been added to the project structure.
-				# Created Testing for Shared Directory to ensure that the shared logic is working as intended and can be used across all Microservices.
-
 		- Phase 3
 			- Goal: 
 				- Implement the Warehouse Service and Database.
@@ -160,5 +132,5 @@
 	- YARP
 	- Docker
 	- GitHub
-	- MySQL (version 8.0 CE)
-	- Visual Studio (2022)
+	- MySQL
+	- Visual Studio 2022
