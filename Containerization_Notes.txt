@@ -1,0 +1,176 @@
+
+
+-------- PortfolioWork — Containerization Notes --------
+
+This document describes the configuration, execution, and validation of the PortfolioWork services using Docker and Docker Compose.
+
+NOTE:	Docker Compose configuration is maintained in `compose.yaml`, located at the .\Solution Items\ directory of the PortfolioWork repository. 
+		Individual Dockerfiles are maintained within their respective service and test project directories.
+
+--------------------------------------------------------
+
+# UserService Containerization
+
+	1. UserService Dockerfile
+		Location: `src/UserService/Dockerfile`
+
+		The UserService application uses a multi-stage Docker build.
+
+		- Build Stage
+			-- Use `mcr.microsoft.com/dotnet/sdk:8.0`.
+			-- Copy the UserService project configuration.
+			-- Restore NuGet dependencies.
+			-- Copy the application source code.
+			-- Build and publish the application in Release configuration.
+
+		- Runtime Stage
+			-- Use `mcr.microsoft.com/dotnet/aspnet:8.0`.
+			-- Copy the published application from the build stage.
+			-- Install `curl` for container health monitoring.
+			-- Configure the application to listen on port 8080.
+			-- Execute `UserService.dll` when the container starts.
+
+			NOTE: The .NET SDK is required for compilation but is not required in the final application runtime image.
+
+	2. Docker Compose Configuration
+		Location: .\Solution Items\`compose.yaml`
+
+		The following services are defined:
+			-UserService
+				-- Build using `src/UserService/Dockerfile`.
+				-- Map host port 8080 to container port 8080.
+				-- Set `ASPNETCORE_ENVIRONMENT` to `Development` to demonstrate the API using Swagger.
+				-- Configure database connection strings through environment variables.
+				-- Connect to MySQL using the Compose service hostname `mysql`.
+				-- Wait until the MySQL container reports healthy before starting.
+
+			-MySQL
+				-- Use the official `mysql:8.4` image.
+				-- Configure `MYSQL_ROOT_PASSWORD` and `MYSQL_DATABASE`.
+				-- Use internal port 3306 for communication with UserService.
+				-- Mount database initialization scripts.
+				-- Use a named Docker volume to persist database data.
+				-- Configure a health check to verify database availability.
+
+			-UserService Tests
+				-- Build using `tests/UserService.Tests/Dockerfile`.
+				-- Use the .NET 8 SDK to execute xUnit integration tests.
+				-- Configure the API address through the `USERSERVICE_BASE_URL` environment variable.
+				-- Connect to the API using `http://userservice:8080`.
+				-- Wait until UserService reports healthy before executing tests.
+				-- Use the `testing` profile to prevent automatic execution during normal application startup.
+
+		NOTE: Docker Compose automatically creates a network that allows services to communicate using their service names.
+
+	3. Database Initialization
+		Location: `docker/mysql/init/`
+
+		MySQL initialization uses the following scripts:
+			- `01-UserService-schema.sql` — Creates the database tables and relationships.
+			- `02-UserService-DBUsers.sql` — Creates database accounts with their designated permissions.
+			- `03-UserService-Data.sql` — Inserts demonstration data, including four application roles and nine users.
+
+		These scripts execute automatically when MySQL initializes a new, empty database volume.
+		IMPORTANT: Initialization scripts do not automatically rerun when restarting a container with an existing populated database volume.
+
+		The database uses separate application accounts for read-only, write-only, and read/write access.
+		DEMONSTRATION NOTE: Credentials are intentionally hardcoded for educational purposes. In actual production systems we would use secure credential management practices.
+
+	4. Docker Build Context
+		A `.dockerignore` file is maintained at the repository root to exclude unnecessary files from the Docker build context.
+		Typical exclusions include generated build outputs, IDE metadata, and Git repository data.
+		The Dockerfiles use the repository root as their build context so that their `COPY` instructions can access the appropriate project directories.
+
+	5. Building and Running the Containers
+		Open PowerShell or another supported terminal and navigate to the PortfolioWork repository root.
+		
+		NOTE: The following steps will be ran assuming that you are running in an Administrator Powershell terminal.
+
+		-Start the Application
+			docker compose up -d --build
+
+		Purpose:	This builds the application image and starts the normal Compose services, including UserService and MySQL.
+					The test container does not run automatically because it belongs to the `testing` profile.
+
+		- Run the Integration Tests
+			docker compose run --rm --build userservice-tests
+
+		Purpose:	This command builds the test image, starts required dependencies, waits for their configured health checks, 
+					executes the xUnit tests, and removes the temporary test container afterward.
+
+		- Inspect Container Status
+			docker compose ps
+
+		Purpose:	Both MySQL and UserService should report a healthy status.
+
+	6. Verify the UserService API
+		- Once the containers are running, open:
+			`http://localhost:8080/swagger`
+
+		Purpose:	Swagger provides an interface for exploring and testing the UserService API endpoints.
+
+		The application health endpoint is available at:
+			`http://localhost:8080/healthcheck`
+
+		NOTE:	A successful health check returns HTTP 200 with the response `Healthy`.
+				The current application health check confirms that the service is responding. 
+				It does not independently execute a database connectivity test.
+
+	7. Database Validation
+		Location: `scripts/database/Validate-UserService-DB.ps1`
+
+		- The PowerShell validation script verifies:
+			-- MySQL container health.
+			-- Required database tables.
+			-- Expected seed data counts.
+			-- Valid user-role references.
+			-- Database-level permissions.
+			-- Absence of unexpected global privileges.
+			-- Absence of unexpected table-level privileges.
+			-- Absence of unexpected column-level privileges.
+			-- Absence of unexpected MySQL role assignments.
+
+		- Execute from the repository root:
+			.\scripts\database\Validate-UserService-DB.ps1
+
+		NOTE:	The script also supports execution from outside the repository using its full path.
+				A successful validation returns exit code `0`. A failed validation returns exit code `1`.
+
+	8. Stopping and Removing Containers
+		- Stop Containers Without Removing Them by running:
+			docker compose stop
+
+		- Stop and Remove Containers and the Default Network by running: 
+			docker compose down
+
+		NOTE: By default, the named database volume is preserved.
+
+		- Remove Containers and Database Volumes by running:
+			docker compose down -v
+
+		WARNING:	The `-v` option removes the Compose-managed database volume, deleting its stored data. 
+					On the next startup, MySQL will initialize a new database and execute the initialization scripts again.
+
+					Use this command only when intentionally resetting the demonstration environment.
+
+	9. Additional Notes
+		- Docker Desktop or a compatible Docker Engine and Docker Compose installation are required.
+		- Docker service names are used for internal container communication.
+		- `localhost` inside a container refers to that container, not the host computer.
+		- Database connection strings are overridden through Compose environment variables.
+		- The current implementation is intended for educational demonstration, not production deployment.
+		- The UserService integration test suite contains 25 tests, all of which passed during the final containerized validation.
+		- The final validation confirmed that MySQL became healthy before UserService and that UserService became healthy before integration tests executed.
+
+---------------------------------------------------------------------------------
+	-Final Validation Results-
+
+		The following functionality has been verified:
+			- Successful UserService Docker image build.
+			- Successful MySQL container initialization and health monitoring.
+			- Successful UserService application health monitoring.
+			- Successful Docker Compose dependency sequencing.
+			- Successful containerized execution of all 25 UserService integration tests.
+			- Successful database validation using the dedicated PowerShell script.
+
+		UserService containerization and integration testing milestone: Complete.

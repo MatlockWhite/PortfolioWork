@@ -105,7 +105,13 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+// Register ASP.NET Core health check services.
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
+
+// Expose application health status for Docker Compose.
+app.MapHealthChecks("/healthcheck");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

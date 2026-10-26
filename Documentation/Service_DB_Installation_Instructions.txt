@@ -144,7 +144,7 @@ Steps:
 				- Create Read_User			(User Permissions that are allowed to only read data from the DB.	ALLOWS ACCESS TO: (SELECT))
 				- Create Write_User			(User Permissions that are allowed to only write data to the DB.	ALLOWS ACCESS TO: (INSERT, UPDATE, DELETE))
 				- Create ReadWrite_User		(User Permissions that allow the user to read and write to the DB.	ALLOWS ACCESS TO: (SELECT, INSERT, UPDATE, DELETE))
-				- Create Admin_User			(User Permissions that allow the user to alter the Schema.			ALLOWS ACCESS TO: (CREATE, DROP, ALTER))
+				- Create Admin_User			(User Permissions that allow the user to alter the Schema.			ALLOWS ACCESS TO: (CREATE, DROP, ALTER, INDEX, REFERENCES))
 
 	12) COMPLETE!
 

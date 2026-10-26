@@ -1,0 +1,135 @@
+services:
+    # ---------------------------------------------------------
+    #               USER SERVICE CONFIGURATION
+    # ---------------------------------------------------------
+    userservice:
+        depends_on:
+            mysql:
+                condition: service_healthy
+        build:
+            context: .
+            dockerfile: src/UserService/Dockerfile
+
+        ports:
+            - "8080:8080"
+
+        environment:
+            #---------------------------------------------------------
+            # NOTE: The following environment variables are used to configure the UserService application.
+            #       They are used to override the default configuration values specified in appsettings.json.
+            #
+            # NOTE: We are using the ASPNETCORE_ENVIRONMENT variable 'Development' specifically so that we can demonstrate the API functionality using Swagger.
+            ASPNETCORE_ENVIRONMENT: Development
+            ASPNETCORE_HTTP_PORTS: 8080
+
+            # ---------------------------------------------------------
+            # DATABASE CONNECTION OVERRIDES
+            #
+            # The following are the connection strings for the (User) MySQL database used by the UserService.
+            # NOTE: Each connection string is configured for a different access level (read, write, read/write).
+            #
+            # When running UserService locally, we use localhost to refer to the Windows machine hosting our MySQL database.
+            # However, when running inside Docker, localhost refers to the container itself, which does not refer to the host's MySQL instance.
+            # 
+            # PREVIOUS IMPLEMENTATION:
+            # When MySQL was installed directly on Windows, UserService connected through host.docker.internal using port 3401.
+            #
+            # CURRENT IMPLEMENTATION:
+            # MySQL now runs as a separate Docker Compose service.
+            # Docker's internal DNS resolves the service name "mysql", allowing UserService to connect through its default port 3306.
+            #
+            # NOTE: "localhost" inside a container refers to that container itself, not the Windows host or another container.
+            #
+            # The typical syntax in ASP.NET Core uses double underscores (__) to represent nested configuration keys, overriding appsettings.json.
+            #
+            # In a production environment, the credentials would be supplied securely and the database hostname(s), username(s), and password(s) would be environment-specific.
+            # We are using hardcoded values here for clarity of demonstration purposes only.
+            # ---------------------------------------------------------
+
+            ConnectionStrings__UserServiceDatabase_ReadAccess: "Server=mysql;Port=3306;Database=UserService;User=ReadUser;Password=password;"
+            ConnectionStrings__UserServiceDatabase_WriteAccess: "Server=mysql;Port=3306;Database=UserService;User=WriteUser;Password=password;"
+            ConnectionStrings__UserServiceDatabase_ReadWriteAccess: "Server=mysql;Port=3306;Database=UserService;User=ReadWriteUser;Password=password;"
+            
+        # ---------------------------------------------------------
+        # USER SERVICE HEALTH CHECK
+        #
+        # Docker periodically queries the application's health endpoint to verify that UserService is accepting requests.
+        #
+        # This checks application readiness, not database health.
+        # MySQL has its own separate health check.
+        # ---------------------------------------------------------
+        healthcheck:
+            test: ["CMD", "curl", "--fail", "--silent", "--output", "/dev/null", "http://localhost:8080/healthcheck"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+            start_period: 20s
+
+    
+    # ---------------------------------------------------------
+    #               MYSQL CONTAINER CONFIGURATION
+    # ---------------------------------------------------------
+    mysql:
+        image: mysql:8.4
+
+        environment:
+            # ---------------------------------------------------------
+            # The following environment variables are recognized by the official MySQL Docker image during initialization.
+            #
+            # Unlike ASP.NET Core configuration keys, these variable names are defined by the MySQL Docker image itself.
+            #
+            # Docker Compose provides internal DNS resolution using service names. 
+            # Our UserService will connect to this database using "Server=mysql;Port=3306".
+            #
+            # DEMONSTRATION ONLY:
+            # These credentials are intentionally hardcoded for educational purposes and must never be used in production.
+            # ---------------------------------------------------------
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_DATABASE: UserService
+
+        volumes:
+            # Initialize the database using our SQL scripts.
+            - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+
+            # Preserve database data across container restarts.
+            - userservice_mysql_data:/var/lib/mysql
+
+        healthcheck:
+            test: ["CMD-SHELL", "MYSQL_PWD=\"$$MYSQL_ROOT_PASSWORD\" mysql --protocol=TCP -h 127.0.0.1 -uroot -D UserService -e 'SELECT 1' > /dev/null 2>&1"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+            start_period: 30s
+
+    # ---------------------------------------------------------
+    #          USER SERVICE INTEGRATION TEST CONFIGURATION
+    # ---------------------------------------------------------
+    userservice-tests:
+        # Build the test container using the .NET 8 SDK.
+        build:
+            context: .
+            dockerfile: tests/UserService.Tests/Dockerfile
+
+        # The tests require a running UserService API.
+        # MySQL readiness is handled by UserService's own dependency.
+        depends_on:
+            userservice:
+                condition: service_healthy
+
+        environment:
+            # ---------------------------------------------------------
+            # API CONNECTION OVERRIDE
+            #
+            # Local tests connect to localhost:5215 by default.
+            # Inside Docker, localhost refers to the test container.
+            #
+            # Docker Compose resolves "userservice" to the API container,
+            # allowing tests to communicate over the internal network.
+            # ---------------------------------------------------------
+            USERSERVICE_BASE_URL: "http://userservice:8080"
+
+        # Tests are run on demand rather than as a persistent service.
+        profiles:
+            - testing
+volumes:
+    userservice_mysql_data:
