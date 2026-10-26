@@ -63,7 +63,14 @@ namespace UserService.Tests.Helpers
         public MockData() { }
 
         // URI Connection Getter for the MockData class.
-        public string GetURIConnection() { return URIConnection; }
+        // We have now overloaded the URI connection to check for an environment variable called USERSERVICE_BASE_URL.
+        // The USERSERVICE_BASE_URL environment variable can be set to override the default URIConnection value of "http://localhost:5215" which we will be using when containerized.
+        // If it is set, we will use that value instead of the default URIConnection.
+        public string GetURIConnection() 
+        { 
+            string? configuredURI = Environment.GetEnvironmentVariable("USERSERVICE_BASE_URL");
+            return string.IsNullOrWhiteSpace(configuredURI) ? URIConnection : configuredURI; 
+        }
 
         // User Getters for the MockData class.
         public User GetAdminUser() { return ADMIN_1; }

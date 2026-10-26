@@ -622,5 +622,34 @@ namespace UserService.Controllers
         //    if (string.IsNullOrWhiteSpace(token)) { return; }
         //    ApplyJwtToken(token);
         //}
+
+        // ----- The Following are designed Failure Tests to verify that the Read/Write Restrictions are in place and functioning correctly. -----
+        ///// <summary>
+        ///// This is a failure Test to verify that the write User cannot retrieve data from DB and the proper Read/Write restrictions are in place.
+        ///// </summary>
+        ///// <returns>Should return a failed response.</returns>
+        //[HttpGet("TestWritePermissionFailure")]
+        //public async Task<ActionResult<IEnumerable<UserResponse>>> WritePermissionAttemptingGetUsers()
+        //{
+        //    var users = await _writeContext.Users
+        //        .AsNoTracking()
+        //        .Select(user => new UserResponse
+        //        {
+        //            Id = user.Id,
+        //            Username = user.Username,
+        //            FirstName = user.FirstName,
+        //            LastName = user.LastName,
+        //            Email = user.Email,
+        //            Team = user.Team,
+        //            PhoneNumber = user.PhoneNumber,
+        //            RoleId = user.RoleId,
+        //            IsActive = user.IsActive,
+        //            LastActive = user.LastActive
+        //        })
+        //        .ToListAsync();
+
+        //    return Ok(users);
+        //}
+
     }
 }
